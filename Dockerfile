@@ -15,9 +15,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ########## Common Tools ##########
 RUN apt-get update && \
     apt-get install -y \
-	    vim \
     	wget \
-    	unzip \
     	git \
 		python3-tk
 ########## PyTorch ##########
