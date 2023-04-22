@@ -38,13 +38,16 @@ RUN apt-get update && \
 	pip3 install \
 		jupyter \
 		matplotlib \
+		numpy==1.23.1 \
 		gym==0.17.1 \
 		pyglet==1.5.27 \
 		JSAnimation \
 		scikit-learn \
 		pandas \
 		atari_py \
-		opencv-python && \
+		opencv-python \
+		tqdm \
+		tensorflow && \
 	cd /usr/local/lib/python3.8/dist-packages/JSAnimation && \
 	sed -i -e 's/, clear_temp=False//g' html_writer.py && \
 	sed -i -e 's/self._temp_names/self._temp_paths/g' html_writer.py && \
@@ -53,13 +56,18 @@ RUN apt-get update && \
 	wget http://www.atarimania.com/roms/Roms.rar && \
 	mkdir rom && \
 	unrar e -y Roms.rar ./rom && \
-	python3 -m atari_py.import_roms ./rom
+	python3 -m atari_py.import_roms ./rom && \
+	git clone https://github.com/openai/baselines.git && \
+	cd baselines && \
+	pip3 install -e .
 ########## Cache Busting ##########
 ARG cache_bust=1
 ########## Book ##########
 RUN cd $home_dir && \
 	git clone https://github.com/YutaroOgawa/Deep-Reinforcement-Learning-Book && \
-	sed -i -e 's/mnist.data/mnist.data.to_numpy()/g' Deep-Reinforcement-Learning-Book/program/4_3_PyTorch_MNIST.ipynb
+	cd Deep-Reinforcement-Learning-Book/program && \
+	sed -i -e 's/mnist.data/mnist.data.to_numpy()/g' 4_3_PyTorch_MNIST.ipynb && \
+	sed -i -e 's/current_obs\[:, :-1\] = current_obs\[:, 1:\]/current_obs\[:, :-1\] = current_obs.clone()\[:, 1:\]/g' 7_breakout_play.ipynb
 ########## Initial Position ##########
 WORKDIR $home_dir/Deep-Reinforcement-Learning-Book
 CMD ["bash"]
