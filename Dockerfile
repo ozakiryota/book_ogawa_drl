@@ -33,18 +33,33 @@ RUN apt-get update && \
 RUN apt-get update && \
 	apt-get install -y \
 		python-opengl \
-		ffmpeg && \
+		ffmpeg \
+		unrar && \
 	pip3 install \
 		jupyter \
 		matplotlib \
 		gym==0.17.1 \
 		pyglet==1.5.27 \
-		JSAnimation
+		JSAnimation \
+		scikit-learn \
+		pandas \
+		atari_py \
+		opencv-python && \
+	cd /usr/local/lib/python3.8/dist-packages/JSAnimation && \
+	sed -i -e 's/, clear_temp=False//g' html_writer.py && \
+	sed -i -e 's/self._temp_names/self._temp_paths/g' html_writer.py && \
+	sed -i -e "s/return ('', '')/return (''.encode('utf-8'), ''.encode('utf-8'))/g" html_writer.py && \
+	cd /tmp && \
+	wget http://www.atarimania.com/roms/Roms.rar && \
+	mkdir rom && \
+	unrar e -y Roms.rar ./rom && \
+	python3 -m atari_py.import_roms ./rom
 ########## Cache Busting ##########
 ARG cache_bust=1
 ########## Book ##########
 RUN cd $home_dir && \
-	git clone https://github.com/YutaroOgawa/Deep-Reinforcement-Learning-Book
+	git clone https://github.com/YutaroOgawa/Deep-Reinforcement-Learning-Book && \
+	sed -i -e 's/mnist.data/mnist.data.to_numpy()/g' Deep-Reinforcement-Learning-Book/program/4_3_PyTorch_MNIST.ipynb
 ########## Initial Position ##########
 WORKDIR $home_dir/Deep-Reinforcement-Learning-Book
 CMD ["bash"]
